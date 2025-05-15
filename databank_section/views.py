@@ -751,25 +751,13 @@ def send_matching_pdf(request, property_id):
             content_variables=f'{{"1":"{pdf_filename}"}}'
             )
             print(f"✅ WhatsApp sent to client: {phonenumber}")
+            pdf_record.delete()
             return Response({
                 "message": "PDF saved and sent successfully.",
             })
         except Exception as err:
             print(f"❌ Error sending to client WhatsApp: {err}")
 
-        # === Email with PDF attachment ===
-        subject = f"Matching Properties PDF for Property ID {property_id}"
-        body = "Hello,\n\nPlease find the attached PDF with top matching properties."
-        to_email = new_property.email
-
-        if not to_email:
-            return Response({"error": "Client email not found."}, status=400)
-
-        email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL, [to_email])
-        email.attach(f"matching_properties_{property_id}.pdf", buffer.read(), "application/pdf")
-        email.send(fail_silently=False)
-        
-        # Assume 'ranked_matches' contains a list of matching properties
         
         
 
