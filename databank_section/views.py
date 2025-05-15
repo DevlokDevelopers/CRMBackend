@@ -43,7 +43,8 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import re
 from twilio.rest import Client
-
+from django.core.files.base import ContentFile
+from .models import MatchingDataPdf
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated,IsSalesManagerUser])
@@ -645,26 +646,6 @@ def send_matching_pdf(request, property_id):
 
         ranked_matches.sort(reverse=True, key=lambda x: x[0])
 
-        if not ranked_matches:
-            ground_staff_phonenumbers = Ground_level_managers_reg.objects.values_list("phonenumber", flat=True)
-            if ground_staff_phonenumbers:
-                for phone_number in ground_staff_phonenumbers:
-                    try:
-                        client_twilio.messages.create(
-                            from_=TWILIO_WHATSAPP_FROM,
-                            to=f"whatsapp:+91{phone_number}",
-                            content_sid=TWILIO_GLM_TEMPLATE_SID,
-                            content_variables=f'{{"1":"{new_property.purpose}", "2":"{new_property.mode_of_property}", "3":"{new_property.district}","4":"{new_property.place}"}}'
-                        )
-                        print(f"✅ WhatsApp sent to ground staff: +91{phone_number}")
-                    except Exception as err:
-                        print(f"❌ Error sending to ground staff +91{phone_number}: {err}")
-
-            return Response(
-                {"message": "⚠️ No matching properties found! WhatsApp notification sent to Ground-Level Staff."},
-                status=status.HTTP_200_OK,
-            )
-
 
         # === PDF Generation ===
         buffer = BytesIO()
@@ -732,41 +713,6 @@ def send_matching_pdf(request, property_id):
             """
             content.append(Paragraph(details, normal_style))
             content.append(Spacer(1, 6))
-
-            # Add property images (up to 2 images per property)
-            for img_obj in prop.images.all():
-                try:
-                    # Get the image URL
-                    image_url = f"https://devlokcrm-production.up.railway.app{img_obj.image.url}"
-                    response = requests.get(image_url)
-
-                    if response.status_code == 200:
-                        # Load image content into a BytesIO buffer
-                        img_data = BytesIO(response.content)
-
-                        # Open image using PIL to check for rotation and fix it if necessary
-                        pil_img = PILImage.open(img_data)
-
-                        # Correct the image orientation (rotate if necessary)
-                        pil_img = pil_img.rotate(0, expand=True)  # Change angle if needed
-
-                        # Save the corrected image back into a BytesIO buffer
-                        img_corrected_data = BytesIO()
-                        pil_img.save(img_corrected_data, format='JPEG')
-                        img_corrected_data.seek(0)  # Rewind buffer to start
-
-                        # Use the corrected image for the PDF
-                        img = RLImage(img_corrected_data, width=5 * inch, height=3 * inch)
-                        img.hAlign = 'LEFT'
-
-                        # Append image to the PDF content
-                        content.append(img)
-                        content.append(Spacer(1, 6))
-                    else:
-                        pass
-                except Exception as e:
-                    pass
-
             content.append(Spacer(1, 12))
             content.append(Table([[" " * 150]], style=[("LINEBELOW", (0, 0), (-1, -1), 0.5, colors.grey)]))
             content.append(Spacer(1, 12))
@@ -788,15 +734,28 @@ def send_matching_pdf(request, property_id):
         doc.build(content, onFirstPage=add_watermark, onLaterPages=add_watermark)
 
         buffer.seek(0)
-        pdf_folder_path = os.path.join(settings.MEDIA_ROOT, 'temp_pdfs')
-        os.makedirs(pdf_folder_path, exist_ok=True)
-
         pdf_filename = f"matching_properties_{property_id}.pdf"
-        pdf_path = os.path.join(pdf_folder_path, pdf_filename)
+        pdf_bytes = buffer.getvalue()  # This contains the full PDF content
 
-        with open(pdf_path, 'wb') as f:
-            f.write(buffer.getvalue())
-
+        # Create instance and attach PDF to it
+        pdf_record = MatchingDataPdf()
+        pdf_record.matching_pdf.save(pdf_filename, ContentFile(pdf_bytes))
+        pdf_record.save()
+        phonenumber = new_property.phonenumber
+        
+        try:
+            client_twilio.messages.create(
+            from_=TWILIO_WHATSAPP_FROM,
+            to=f"whatsapp:+91{phonenumber}",
+            content_sid=TWILIO_MATCHEDDATA_TEMPLATE_SID,
+            content_variables=f'{{"1":"{pdf_filename}"}}'
+            )
+            print(f"✅ WhatsApp sent to client: {phonenumber}")
+            return Response({
+                "message": "PDF saved and sent successfully.",
+            })
+        except Exception as err:
+            print(f"❌ Error sending to client WhatsApp: {err}")
 
         # === Email with PDF attachment ===
         subject = f"Matching Properties PDF for Property ID {property_id}"
@@ -811,48 +770,7 @@ def send_matching_pdf(request, property_id):
         email.send(fail_silently=False)
         
         # Assume 'ranked_matches' contains a list of matching properties
-        batch_size = 10  # The number of properties to send per message
-
-        # Split ranked_matches into chunks of 10 properties
-        for i in range(0, len(ranked_matches), batch_size):
-            chunk = ranked_matches[i:i+batch_size]
-
-            # Format the content_variables for each chunk
-            content_variables = {}
-
-            # Iterate over the properties in the chunk
-            for j, match in enumerate(chunk):
-                # Calculate dynamic placeholders for each property in the chunk
-                base_index = j * 10  # base index for each property set (1-10, 11-20, etc.)
-                
-                content_variables[str(1 + base_index)] = match.district or ""
-                content_variables[str(2 + base_index)] = match.place or ""
-                content_variables[str(3 + base_index)] = match.purpose or ""
-                content_variables[str(4 + base_index)] = match.mode_of_property or ""
-                content_variables[str(5 + base_index)] = match.demand_price or ""
-                content_variables[str(6 + base_index)] = match.area_in_sqft or ""
-                content_variables[str(7 + base_index)] = match.building_bhk or "N/A"
-                content_variables[str(8 + base_index)] = match.number_of_floors or "N/A"
-                content_variables[str(9 + base_index)] = match.building_roof or "N/A"
-                content_variables[str(10 + base_index)] = match.additional_note or "None"
-
-            # Remove any placeholders that are empty (i.e., avoid sending empty data)
-            content_variables = {key: value for key, value in content_variables.items() if value}
-
-            # Send the message for the current chunk of data
-            try:
-                client_twilio.messages.create(
-                    from_=TWILIO_WHATSAPP_FROM,
-                    to=f"whatsapp:+91{new_property.phonenumber}",
-                    content_sid=TWILIO_GLM_TEMPLATE_SID,
-                    content_variables=content_variables  # Send the formatted content
-                )
-                print(f"✅ WhatsApp sent to client: +91{new_property.phonenumber}")
-            except Exception as err:
-                print(f"❌ Error sending to client +91{new_property.phonenumber}: {err}")
-
-
-            return Response({"message": "Matching properties PDF sent to client successfully."})
+        
         
 
     except Exception as e:

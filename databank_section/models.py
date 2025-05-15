@@ -42,3 +42,8 @@ class DataBankImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.databank.name}"
+    
+    
+    
+class MatchingDataPdf(models.Model):
+    matching_pdf = models.FileField(upload_to='match_pdfs/', null=True, blank=True)
