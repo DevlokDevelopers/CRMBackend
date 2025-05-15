@@ -959,44 +959,61 @@ def match_property(request, property_id):
                 {"total_matches": len(ranked_matches), "matches": serialized_matches},
                 status=200
             )
+        ground_staff_phonenumbers = Ground_level_managers_reg.objects.values_list("phonenumber", flat=True)
+        if ground_staff_phonenumbers:
+            for phone_number in ground_staff_phonenumbers:
+                try:
+                    client_twilio.messages.create(
+                    from_=TWILIO_WHATSAPP_FROM,
+                    to=f"whatsapp:+91{phone_number}",
+                    content_sid=TWILIO_GLM_TEMPLATE_SID,
+                    content_variables=f'{{"1":"{new_property.purpose}", "2":"{new_property.mode_of_property}", "3":"{new_property.district}","4":"{new_property.place}"}}'
+                    )
+                    print(f"✅ WhatsApp sent to ground staff: +91{phone_number}")
+                except Exception as err:
+                    print(f"❌ Error sending to ground staff +91{phone_number}: {err}")
 
-        ground_staff_emails = Ground_level_managers_reg.objects.values_list("email", flat=True)
-        if ground_staff_emails:
-            subject = "⚠️ No Matches Found for New Property"
-            message = (
-                f"A new property has been added but no matching properties were found.\n\n"
-                f"--- Property Details ---\n"
-                f"ID: {new_property.id}\n"
-                f"Name: {new_property.name}\n"
-                f"Phone: {new_property.phonenumber}\n"
-                f"Email: {new_property.email}\n"
-                f"Purpose: {new_property.purpose}\n"
-                f"Type: {new_property.mode_of_property}\n"
-                f"District: {new_property.district}\n"
-                f"Place: {new_property.place}\n"
-                f"Address: {new_property.address}\n"
-                f"Demand Price: {new_property.demand_price}\n"
-                f"Proposal District: {new_property.location_proposal_district}\n"
-                f"Proposal Place: {new_property.location_proposal_place}\n"
-                f"Area: {new_property.area_in_sqft}\n"
-                f"BHK: {new_property.building_bhk}\n"
-                f"Floors: {new_property.number_of_floors}\n"
-                f"Roof Type: {new_property.building_roof}\n"
-                f"Location Link: {new_property.location_link}\n"
-                f"Additional Note: {new_property.additional_note}\n"
+            return Response(
+                {"message": "⚠️ No matching properties found! WhatsApp notification sent to Ground-Level Staff."},
+                status=status.HTTP_200_OK,
             )
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                list(ground_staff_emails),
-                fail_silently=True
-            )
+        # ground_staff_emails = Ground_level_managers_reg.objects.values_list("email", flat=True)
+        # if ground_staff_emails:
+        #     subject = "⚠️ No Matches Found for New Property"
+        #     message = (
+        #         f"A new property has been added but no matching properties were found.\n\n"
+        #         f"--- Property Details ---\n"
+        #         f"ID: {new_property.id}\n"
+        #         f"Name: {new_property.name}\n"
+        #         f"Phone: {new_property.phonenumber}\n"
+        #         f"Email: {new_property.email}\n"
+        #         f"Purpose: {new_property.purpose}\n"
+        #         f"Type: {new_property.mode_of_property}\n"
+        #         f"District: {new_property.district}\n"
+        #         f"Place: {new_property.place}\n"
+        #         f"Address: {new_property.address}\n"
+        #         f"Demand Price: {new_property.demand_price}\n"
+        #         f"Proposal District: {new_property.location_proposal_district}\n"
+        #         f"Proposal Place: {new_property.location_proposal_place}\n"
+        #         f"Area: {new_property.area_in_sqft}\n"
+        #         f"BHK: {new_property.building_bhk}\n"
+        #         f"Floors: {new_property.number_of_floors}\n"
+        #         f"Roof Type: {new_property.building_roof}\n"
+        #         f"Location Link: {new_property.location_link}\n"
+        #         f"Additional Note: {new_property.additional_note}\n"
+        #     )
+        #     send_mail(
+        #         subject,
+        #         message,
+        #         settings.DEFAULT_FROM_EMAIL,
+        #         list(ground_staff_emails),
+        #         fail_silently=True
+        #     )
 
-        return Response(
-            {"message": "⚠️ No matching properties found! Email notification sent to Ground-Level Staff."},
-            status=200
-        )
+        # return Response(
+        #     {"message": "⚠️ No matching properties found! Email notification sent to Ground-Level Staff."},
+        #     status=200
+        # )
 
     except Exception as e:
         return Response({"error": str(e)}, status=500)
