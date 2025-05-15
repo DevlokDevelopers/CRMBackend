@@ -141,7 +141,7 @@ def Update_lead_stage(request,lead_id):
             lead.closed_date = now().date()
 
         if updated_stage in ["Closed by Someone", "Droped Lead"]:
-            send_followup_email.apply_async((lead.id,), eta=now() + timedelta(seconds=1))
+            send_followup_email.apply_async((lead.id,), eta=now() + timedelta(days=365))
     lead.stage = updated_stage
     lead.save()  
     channel_layer = get_channel_layer()
