@@ -877,7 +877,7 @@ def match_property(request, property_id):
             "For Selling a Property": "For Buying a Property",
             "For Buying a Property": "For Selling a Property",
             "For Rental or Lease": "Looking to rent or Lease a Property",
-            "Looking to rent or Lease Property": "For Rental or Lease",
+            "Looking to Rent or Lease Property": "For Rental or Lease",
         }
         opposite_purpose = opposite_purpose_map.get(new_property.purpose, None)
 
@@ -977,43 +977,7 @@ def match_property(request, property_id):
                 {"message": "⚠️ No matching properties found! WhatsApp notification sent to Ground-Level Staff."},
                 status=status.HTTP_200_OK,
             )
-        # ground_staff_emails = Ground_level_managers_reg.objects.values_list("email", flat=True)
-        # if ground_staff_emails:
-        #     subject = "⚠️ No Matches Found for New Property"
-        #     message = (
-        #         f"A new property has been added but no matching properties were found.\n\n"
-        #         f"--- Property Details ---\n"
-        #         f"ID: {new_property.id}\n"
-        #         f"Name: {new_property.name}\n"
-        #         f"Phone: {new_property.phonenumber}\n"
-        #         f"Email: {new_property.email}\n"
-        #         f"Purpose: {new_property.purpose}\n"
-        #         f"Type: {new_property.mode_of_property}\n"
-        #         f"District: {new_property.district}\n"
-        #         f"Place: {new_property.place}\n"
-        #         f"Address: {new_property.address}\n"
-        #         f"Demand Price: {new_property.demand_price}\n"
-        #         f"Proposal District: {new_property.location_proposal_district}\n"
-        #         f"Proposal Place: {new_property.location_proposal_place}\n"
-        #         f"Area: {new_property.area_in_sqft}\n"
-        #         f"BHK: {new_property.building_bhk}\n"
-        #         f"Floors: {new_property.number_of_floors}\n"
-        #         f"Roof Type: {new_property.building_roof}\n"
-        #         f"Location Link: {new_property.location_link}\n"
-        #         f"Additional Note: {new_property.additional_note}\n"
-        #     )
-        #     send_mail(
-        #         subject,
-        #         message,
-        #         settings.DEFAULT_FROM_EMAIL,
-        #         list(ground_staff_emails),
-        #         fail_silently=True
-        #     )
-
-        # return Response(
-        #     {"message": "⚠️ No matching properties found! Email notification sent to Ground-Level Staff."},
-        #     status=200
-        # )
+        
 
     except Exception as e:
         return Response({"error": str(e)}, status=500)
