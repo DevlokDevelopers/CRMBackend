@@ -572,7 +572,7 @@ def send_matching_pdf(request, property_id):
             "For Selling a Property": "For Buying a Property",
             "For Buying a Property": "For Selling a Property",
             "For Rental or Lease": "Looking to rent or Lease a Property",
-            "Looking to rent or Lease Property": "For Rental or Lease",
+            "Looking to Rent or Lease Property": "For Rental or Lease",
         }
         opposite_purpose = opposite_purpose_map.get(new_property.purpose, None)
 
@@ -788,6 +788,14 @@ def send_matching_pdf(request, property_id):
         doc.build(content, onFirstPage=add_watermark, onLaterPages=add_watermark)
 
         buffer.seek(0)
+        pdf_folder_path = os.path.join(settings.MEDIA_ROOT, 'temp_pdfs')
+        os.makedirs(pdf_folder_path, exist_ok=True)
+
+        pdf_filename = f"matching_properties_{property_id}.pdf"
+        pdf_path = os.path.join(pdf_folder_path, pdf_filename)
+
+        with open(pdf_path, 'wb') as f:
+            f.write(buffer.getvalue())
 
 
         # === Email with PDF attachment ===
