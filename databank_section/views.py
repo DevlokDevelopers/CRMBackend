@@ -782,7 +782,7 @@ def match_property(request, property_id):
         opposite_purpose_map = {
             "For Selling a Property": "For Buying a Property",
             "For Buying a Property": "For Selling a Property",
-            "For Rental or Lease": "Looking to Rent or Lease a Property",
+            "For Rental or Lease": "Looking to Rent or Lease Property",
             "Looking to Rent or Lease Property": "For Rental or Lease",
         }
         opposite_purpose = opposite_purpose_map.get(new_property.purpose, None)
