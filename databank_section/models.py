@@ -7,7 +7,7 @@ class DataBank(models.Model):
     lead = models.ForeignKey(Leads,on_delete=models.CASCADE,related_name='databank_lead')
     timestamp = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=100)
-    email = models.EmailField(null=True)
+    email = models.EmailField(null=True,blank=True)
     phonenumber = models.CharField(max_length=15)
     district = models.CharField(max_length=100)
     place = models.CharField(max_length=100)

@@ -5,7 +5,7 @@ from auth_section.models import Sales_manager_reg
 class Leads(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=100)
-    email = models.EmailField()
+    email = models.EmailField(null=True,blank=True)
     phonenumber = models.CharField(max_length=15)
     district = models.CharField(max_length=100)
     place = models.CharField(max_length=100)
