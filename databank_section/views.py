@@ -554,7 +554,7 @@ def filter_data_banks(request):
 
 
 TWILIO_ACCOUNT_SID = "ACe1b80056ccbacae1f088ba119ce08ccd"  # Replace with your Twilio SID
-TWILIO_AUTH_TOKEN = "5e5c9c441a1a99fecf717aabf41dded1"  # Replace with your Twilio auth token
+TWILIO_AUTH_TOKEN = "db0c7f6ea998625a89e9a42e0e6069c3"  # Replace with your Twilio auth token
 TWILIO_WHATSAPP_FROM = "whatsapp:+919562080200"
 TWILIO_GLM_TEMPLATE_SID = "HX63f6fd8b9b20a9374bcb48bb6c15ca77"  # Replace this
 TWILIO_MATCHEDDATA_TEMPLATE_SID = "HXeadbd83ccd838cb5a7386f8857e9d7f4" 

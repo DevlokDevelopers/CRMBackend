@@ -94,7 +94,7 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [os.getenv('REDIS_URL', 'redis://default:cTFVSJbRmvNCYGxQUfzUDEcLEnxtuAhp@nozomi.proxy.rlwy.net:20713')],
-        },
+        },    
     },
     "notifications": {
         "BACKEND": "channels.layers.InMemoryChannelLayer",
