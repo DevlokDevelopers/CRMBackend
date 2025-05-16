@@ -589,7 +589,7 @@ def send_matching_pdf(request, property_id):
             )
 
         new_coords = get_coordinates(
-            new_property.location_proposal_place if new_property.purpose in ["buy", "rental seeker"]
+            new_property.location_proposal_place if new_property.purpose in ["For Buying a Property", "Looking to Rent or Lease Property"]
             else new_property.place
         )
 
@@ -601,7 +601,7 @@ def send_matching_pdf(request, property_id):
                 score += 4
 
             # District and Place match
-            if new_property.purpose in ["buy", "rental seeker"]:
+            if new_property.purpose in ["For Buying a Property", "Looking to Rent or Lease Property"]:
                 if match.district == new_property.location_proposal_district:
                     score += 3
                 if match.place and new_property.location_proposal_place and match.place.lower() == new_property.location_proposal_place.lower():
@@ -799,7 +799,7 @@ def match_property(request, property_id):
             )
 
         new_coords = get_coordinates(
-            new_property.location_proposal_place if new_property.purpose in ["buy", "rental seeker"]
+            new_property.location_proposal_place if new_property.purpose in ["For Buying a Property", "Looking to Rent or Lease Property"]
             else new_property.place
         )
 
@@ -811,7 +811,7 @@ def match_property(request, property_id):
                 score += 4
 
             # District and Place match
-            if new_property.purpose in ["buy", "rental seeker"]:
+            if new_property.purpose in ["For Buying a Property", "Looking to Rent or Lease Property"]:
                 if match.district == new_property.location_proposal_district:
                     score += 3
                 if match.place and new_property.location_proposal_place and match.place.lower() == new_property.location_proposal_place.lower():
