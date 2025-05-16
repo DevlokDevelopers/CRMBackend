@@ -11,7 +11,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["devlokcrm.up.railway.app","devlokcrmbackend.up.railway.app"]  # Set specific Railway domain in production for security
 
-DATABASES_URL = "postgresql://postgres:bhArlWrsgybdLCuwsmoIfbQPjLqfKDtH@shuttle.proxy.rlwy.net:51302/railway"
+DATABASES_URL = "postgresql://postgres:dDVbTucwICtVYSlQMFDVMnucZkOHPCxH@shuttle.proxy.rlwy.net:37010/railway"
 
 # Installed apps
 INSTALLED_APPS = [
