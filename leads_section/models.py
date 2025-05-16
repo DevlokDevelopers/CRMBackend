@@ -19,6 +19,8 @@ class Leads(models.Model):
     follower = models.CharField(max_length=100,default="Nil")
     staff_id = models.IntegerField(default=0)
     staff_key = models.ForeignKey(Sales_manager_reg, on_delete=models.SET_NULL, null=True, blank=True)
+    care_of = models.CharField(max_length=100, blank=True, null=True,default="Nil")
+    
     
     
 

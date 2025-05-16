@@ -33,6 +33,7 @@ class DataBank(models.Model):
     location_link = models.CharField(max_length=500, null=True, blank=True)
     lead_category = models.CharField(max_length=200)
     image_folder = models.CharField(max_length=100,null=True,blank=True)
+    care_of = models.CharField(max_length=100, blank=True, null=True,default="Nil")
     
     
     
