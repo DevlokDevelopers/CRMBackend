@@ -21,7 +21,7 @@ class DataBank(models.Model):
     purpose = models.CharField(max_length=50, choices=PURPOSE_CHOICES)
     
     mode_of_property = models.CharField(max_length=100)
-    demand_price = models.IntegerField()
+    demand_price = models.IntegerField(null=True, blank=True)
     location_proposal_district = models.CharField(max_length=150,null=True,blank=True)
     location_proposal_place = models.CharField(max_length=150,null=True,blank=True)
     area_in_sqft = models.CharField(max_length=100,null=True,blank=True)
