@@ -27,7 +27,7 @@ class DataBank(models.Model):
     area_in_sqft = models.CharField(max_length=100,null=True,blank=True)
     building_roof = models.CharField(max_length=100,null=True,blank=True)
     number_of_floors = models.IntegerField(null=True,blank=True)
-    building_bhk = models.IntegerField(null=True,blank=True)
+    building_bhk = models.CharField(max_length=100,null=True,blank=True)
     additional_note = models.CharField(max_length=250,null=True,blank=True)
     follower = models.ForeignKey(Sales_manager_reg,on_delete=models.CASCADE)
     location_link = models.CharField(max_length=500, null=True, blank=True)
